@@ -3,8 +3,19 @@ uuid = "a85cd6b6-3810-52a0-aaf7-38a6bd88fd85"
 authors = ["Bjarke Hautop Kristensen <bjarke.hautop@gmail.com>"]
 version = "0.1.0"
 
+[deps]
+GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+
+[weakdeps]
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+
+[extensions]
+SugiyamaGraphsExt = "Graphs"
+
 [workspace]
 projects = ["test", "docs"]
 
 [compat]
+GeometryBasics = "0.4, 0.5"
+Graphs = "1"
 julia = "1.10"

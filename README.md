@@ -7,3 +7,21 @@
 [![Lint workflow Status](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Lint.yml/badge.svg?branch=main)](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Lint.yml?query=branch%3Amain)
 [![Docs workflow Status](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Docs.yml/badge.svg?branch=main)](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Docs.yml?query=branch%3Amain)
 [![BestieTemplate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/JuliaBesties/BestieTemplate.jl/main/docs/src/assets/badge.json)](https://github.com/JuliaBesties/BestieTemplate.jl)
+
+A Julia package for Sugiyama-style ("hierarchical" / layered) layout of
+directed graphs, given as an adjacency matrix (or, with Graphs.jl loaded,
+an `AbstractGraph`).
+
+```julia
+using Sugiyama
+
+adj = [0 1 0;
+       0 0 1;
+       0 0 0]
+
+positions = sugiyama(adj)          # Vector{Point{2,Float64}}
+positions = Sugiyama(; direction=:right)(adj)
+```
+
+This implementation is a Julia port of
+[rust-sugiyama](https://github.com/paddison/rust-sugiyama).
