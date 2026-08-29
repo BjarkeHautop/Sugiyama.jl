@@ -1,0 +1,10 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
+Sugiyama = "a85cd6b6-3810-52a0-aaf7-38a6bd88fd85"
+
+[compat]
+Documenter = "1"
+
+[sources]
+Sugiyama = {path = ".."}

@@ -1,0 +1,42 @@
+# Changes here will be overwritten by Copier
+AddAgentsMd: true
+AddAllcontributors: false
+AddChangelog: true
+AddCitationCFF: false
+AddCodeOfConduct: false
+AddContributionDocs: false
+AddCopierCI: false
+AddDocs: true
+AddDocsCI: true
+AddFormatterAndLinterConfigFiles: true
+AddGitHubPRTemplate: true
+AddGitHubTemplates: false
+AddLintCI: true
+AddLychee: true
+AddMacToCI: false
+AddPrecommit: true
+AddPrecommitUpdateCI: false
+AddTagBotCI: true
+AddTestCI: true
+AddVSCodeRecommendations: false
+AddWinToCI: false
+Authors: Bjarke Hautop Kristensen <bjarke.hautop@gmail.com>
+CheckExplicitImports: false
+ConfigIndentation: 2
+GitHubActionVersionAutoUpdate: dependabot
+JuliaCompatAutoUpdate: dependabot
+JuliaIndentation: 4
+JuliaMinCIVersion: lts
+JuliaMinVersion: '1.10'
+License: MIT
+LicenseCopyrightHolders: Bjarke Hautop Kristensen
+MarkdownIndentation: 2
+PackageName: Sugiyama
+PackageOwner: BjarkeHautop
+PackageUUID: a85cd6b6-3810-52a0-aaf7-38a6bd88fd85
+RunJuliaNightlyOnCI: false
+StrategyConfirmIncluded: true
+StrategyLevel: 2
+StrategyReviewExcluded: true
+TestingStrategy: testitem_basic
+_src_path: /home/bjarke/.julia/packages/BestieTemplate/MPEqY

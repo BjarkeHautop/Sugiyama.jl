@@ -1,0 +1,10 @@
+name = "Sugiyama"
+uuid = "a85cd6b6-3810-52a0-aaf7-38a6bd88fd85"
+authors = ["Bjarke Hautop Kristensen <bjarke.hautop@gmail.com>"]
+version = "0.1.0"
+
+[workspace]
+projects = ["test", "docs"]
+
+[compat]
+julia = "1.10"
