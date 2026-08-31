@@ -1,5 +1,6 @@
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+CausalStructures = "b41ab49a-79bc-5eac-acbb-517b17bd5c16"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterCodeBlocks = "b6400b83-267f-4b55-9fd8-bffc853bdfd8"
 GraphMakie = "1ecd5474-83a3-4783-bb4f-06765db800d2"
@@ -8,6 +9,7 @@ LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 Sugiyama = "a85cd6b6-3810-52a0-aaf7-38a6bd88fd85"
 
 [sources]
+CausalStructures = {url = "https://github.com/BjarkeHautop/CausalStructures.jl"}
 Sugiyama = {path = ".."}
 
 [compat]

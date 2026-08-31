@@ -10,6 +10,7 @@ using Sugiyama
 using Graphs
 using CairoMakie
 using GraphMakie
+using CausalStructures
 ```
 
 `SugiyamaLayout` follows the same "callable struct" convention as
@@ -86,4 +87,23 @@ add_edge!(disconnected, 1, 2)
 add_edge!(disconnected, 3, 4)
 
 graphplot(disconnected; layout = SugiyamaLayout(), ilabels = repr.(1:nv(disconnected)))
+```
+
+## A more complex graph
+
+Here we use [CausalStructures.jl](https://github.com/BjarkeHautop/CausalStructures.jl), for generating and plotting a DAG:
+
+```@example quick
+dag = DAG("C --> X, A --> X + K, X --> F + D, K --> Y, D --> Y + G, Y --> H")
+
+ns = nodes(dag)
+node_index = Dict(n => i for (i, n) in enumerate(ns))
+
+adj = zeros(Int, length(ns), length(ns))
+for e in CausalStructures.edges(dag)
+    adj[node_index[e.src], node_index[e.dst]] = 1
+end
+
+positions = sugiyama(adj; direction = :right)
+plot(dag; layout = positions)
 ```
