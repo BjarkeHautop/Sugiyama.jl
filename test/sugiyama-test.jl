@@ -23,19 +23,19 @@
 end
 
 @testitem "Sugiyama construction" begin
-    algo = Sugiyama()
-    @test algo isa Sugiyama{Float64}
+    algo = SugiyamaLayout()
+    @test algo isa SugiyamaLayout{Float64}
     @test algo.ranking_type == :networksimplex
     @test algo.crossing_minimization == :barycenter
     @test algo.direction == :down
 
-    algo = Sugiyama(; Ptype = Float32)
-    @test algo isa Sugiyama{Float32}
+    algo = SugiyamaLayout(; Ptype = Float32)
+    @test algo isa SugiyamaLayout{Float32}
 
-    @test_throws ArgumentError Sugiyama(; direction = :sideways)
-    @test_throws ArgumentError Sugiyama(; ranking_type = :foo)
-    @test_throws ArgumentError Sugiyama(; crossing_minimization = :foo)
-    @test_throws ArgumentError Sugiyama(; minimum_length = 0)
+    @test_throws ArgumentError SugiyamaLayout(; direction = :sideways)
+    @test_throws ArgumentError SugiyamaLayout(; ranking_type = :foo)
+    @test_throws ArgumentError SugiyamaLayout(; crossing_minimization = :foo)
+    @test_throws ArgumentError SugiyamaLayout(; minimum_length = 0)
 end
 
 # ---- Phase 1: ranking / network simplex, ported from rust-sugiyama's -----
@@ -538,13 +538,13 @@ end
     using GeometryBasics: Point
 
     @testset "empty and trivial graphs" begin
-        @test Sugiyama()(zeros(Int, 0, 0)) == Point{2,Float64}[]
-        @test length(Sugiyama()(zeros(Int, 1, 1))) == 1
+        @test SugiyamaLayout()(zeros(Int, 0, 0)) == Point{2,Float64}[]
+        @test length(SugiyamaLayout()(zeros(Int, 1, 1))) == 1
     end
 
     @testset "self loops are ignored" begin
         adj = [1 1; 0 0]
-        pos = Sugiyama()(adj)
+        pos = SugiyamaLayout()(adj)
         @test length(pos) == 2
         @test all(isfinite, pos[1]) && all(isfinite, pos[2])
     end
@@ -554,7 +554,7 @@ end
         for (i, j) in [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 3)]
             adj[i, j] = 1
         end
-        pos = Sugiyama()(adj)
+        pos = SugiyamaLayout()(adj)
         @test length(pos) == 5
         @test all(p -> all(isfinite, p), pos)
     end
@@ -567,7 +567,7 @@ end
             0 0 0 0 1;
             0 0 0 0 0
         ]
-        pos = Sugiyama()(adj)
+        pos = SugiyamaLayout()(adj)
         @test length(pos) == 5
         @test length(unique(pos)) == 5
     end
@@ -576,25 +576,25 @@ end
         g = wheel_graph(10)
         dirg = SimpleDiGraph(collect(edges(g)))
         adj = adjacency_matrix(dirg)
-        pos = Sugiyama()(adj)
+        pos = SugiyamaLayout()(adj)
         @test typeof(pos) == Vector{Point{2,Float64}}
         @test pos == sugiyama(adj)
-        @test pos == Sugiyama()(dirg)
+        @test pos == SugiyamaLayout()(dirg)
     end
 
     @testset "Ptype and direction keywords" begin
         adj = adjacency_matrix(SimpleDiGraph(path_digraph(5)))
-        pos = Sugiyama(; Ptype = Float32)(adj)
+        pos = SugiyamaLayout(; Ptype = Float32)(adj)
         @test typeof(pos) == Vector{Point{2,Float32}}
 
         for d in (:down, :up, :left, :right)
-            pos = Sugiyama(; direction = d)(adj)
+            pos = SugiyamaLayout(; direction = d)(adj)
             @test length(pos) == 5
             @test all(p -> all(isfinite, p), pos)
         end
         # :down and :up should be vertical mirror images (same |y| magnitudes)
-        pd = Sugiyama(; direction = :down)(adj)
-        pu = Sugiyama(; direction = :up)(adj)
+        pd = SugiyamaLayout(; direction = :down)(adj)
+        pu = SugiyamaLayout(; direction = :up)(adj)
         @test getindex.(pd, 2) == -getindex.(pu, 2)
     end
 
@@ -604,7 +604,11 @@ end
             cm in (:barycenter, :median),
             tr in (true, false)
 
-            pos = Sugiyama(; ranking_type = rt, crossing_minimization = cm, transpose = tr)(
+            pos = SugiyamaLayout(;
+                ranking_type = rt,
+                crossing_minimization = cm,
+                transpose = tr,
+            )(
                 adj,
             )
             @test length(pos) == 6
@@ -614,7 +618,9 @@ end
     @testset "nodesize / nodespacing / dummysize keywords" begin
         adj = adjacency_matrix(SimpleDiGraph(path_digraph(4)))
         pos =
-            Sugiyama(; nodesize = [1.0, 2.0, 0.5], nodespacing = 2.0, dummysize = 0.3)(adj)
+            SugiyamaLayout(; nodesize = [1.0, 2.0, 0.5], nodespacing = 2.0, dummysize = 0.3)(
+                adj,
+            )
         @test length(pos) == 4
     end
 end

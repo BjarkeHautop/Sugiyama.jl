@@ -12,6 +12,6 @@ Pages = ["95-reference.md"]
 Pages = ["95-reference.md"]
 ```
 
-```@autodocs
-Modules = [Sugiyama]
+```@docs
+Sugiyama.SugiyamaLayout
 ```

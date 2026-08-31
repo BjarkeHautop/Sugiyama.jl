@@ -1,5 +1,6 @@
 using Sugiyama
 using Documenter
+using DocumenterCodeBlocks
 
 DocMeta.setdocmeta!(Sugiyama, :DocTestSetup, :(using Sugiyama); recursive = true)
 
@@ -63,8 +64,15 @@ makedocs(;
     authors = "Bjarke Hautop Kristensen <bjarke.hautop@gmail.com>",
     repo = "https://github.com/BjarkeHautop/Sugiyama.jl/blob/{commit}{path}#{line}",
     sitename = "Sugiyama.jl",
-    format = Documenter.HTML(; canonical = "https://BjarkeHautop.github.io/Sugiyama.jl"),
+    checkdocs = :exports,
+    format = Documenter.HTML(;
+        canonical = "https://BjarkeHautop.github.io/Sugiyama.jl",
+        repolink = "https://github.com/BjarkeHautop/Sugiyama.jl",
+        example_size_threshold = nothing,
+        size_threshold_ignore = ["05-quick-guide.md"],
+    ),
     pages = list_pages(),
+    plugins = [CodeBlocks(line_numbers = false)],
 )
 
 deploydocs(; repo = "github.com/BjarkeHautop/Sugiyama.jl")

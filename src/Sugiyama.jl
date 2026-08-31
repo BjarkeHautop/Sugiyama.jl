@@ -2,7 +2,7 @@ module Sugiyama
 
 using GeometryBasics: Point
 
-export Sugiyama, sugiyama
+export SugiyamaLayout, sugiyama
 
 include("graph.jl")
 include("cycles.jl")
@@ -11,7 +11,7 @@ include("ordering.jl")
 include("coordinates.jl")
 
 """
-    Sugiyama(; kwargs...)(adj_matrix)
+    SugiyamaLayout(; kwargs...)(adj_matrix)
     sugiyama(adj_matrix; kwargs...)
 
 Layered ("hierarchical") layout for directed graphs: vertices are grouped
@@ -23,7 +23,7 @@ assignment follows Brandes & Köpf (2002,
 [doi 10.1007/3-540-45848-4_3](https://doi.org/10.1007/3-540-45848-4_3)).
 
 Takes the adjacency matrix of a directed graph and returns coordinates of
-the nodes as `Point{2,Ptype}` (from GeometryBasics.jl). Cycles are broken
+the nodes as `Point{2,Ptype}`. Cycles are broken
 by implicitly reversing edges; disconnected components are laid out
 independently and placed side by side.
 
@@ -50,7 +50,7 @@ independently and placed side by side.
 This implementation is a Julia port of
 [rust-sugiyama](https://github.com/paddison/rust-sugiyama).
 """
-struct Sugiyama{Ptype,T}
+struct SugiyamaLayout{Ptype,T}
     nodesize::Vector{T}
     nodespacing::Float64
     dummysize::Float64
@@ -61,7 +61,7 @@ struct Sugiyama{Ptype,T}
     direction::Symbol
 end
 
-function Sugiyama(;
+function SugiyamaLayout(;
     Ptype = Float64,
     nodesize = Float64[],
     nodespacing = 1.0,
@@ -82,7 +82,7 @@ function Sugiyama(;
     )
     crossing_minimization in (:barycenter, :median) ||
         throw(ArgumentError("crossing_minimization must be :barycenter or :median"))
-    return Sugiyama{Ptype,eltype(nodesize)}(
+    return SugiyamaLayout{Ptype,eltype(nodesize)}(
         nodesize,
         Float64(nodespacing),
         Float64(dummysize),
@@ -94,15 +94,9 @@ function Sugiyama(;
     )
 end
 
-(algo::Sugiyama)(adj_matrix) = layout(algo, adj_matrix)
+(algo::SugiyamaLayout)(adj_matrix) = layout(algo, adj_matrix)
 
-"""
-    sugiyama(adj_matrix; kwargs...)
-
-Function-call form of [`Sugiyama`](@ref): `sugiyama(adj_matrix; kwargs...) ==
-Sugiyama(; kwargs...)(adj_matrix)`.
-"""
-sugiyama(adj_matrix; kwargs...) = layout(Sugiyama(; kwargs...), adj_matrix)
+sugiyama(adj_matrix; kwargs...) = layout(SugiyamaLayout(; kwargs...), adj_matrix)
 
 """
 Throws `ArgumentError` if matrix is not square. Returns size.
@@ -113,7 +107,7 @@ function assertsquare(M::AbstractMatrix)
     return a
 end
 
-function layout(algo::Sugiyama{Ptype,T}, adj_matrix::AbstractMatrix) where {Ptype,T}
+function layout(algo::SugiyamaLayout{Ptype,T}, adj_matrix::AbstractMatrix) where {Ptype,T}
     n = assertsquare(adj_matrix)
     positions = Vector{Point{2,Ptype}}(undef, n)
     n == 0 && return positions
@@ -203,7 +197,7 @@ end
 (vertices `1:m` are the "real" input vertices; the pipeline may append
 dummy vertices after that). Returns `(xs, ys)` covering every vertex of the
 (possibly grown) graph."""
-function layout_component!(g::SugiGraph, algo::Sugiyama)
+function layout_component!(g::SugiGraph, algo::SugiyamaLayout)
     remove_cycles!(g)
     rank!(g, algo.minimum_length, algo.ranking_type)
     insert_dummy_vertices!(g, algo.minimum_length, algo.dummysize)
