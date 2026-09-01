@@ -104,6 +104,6 @@ for e in CausalStructures.edges(dag)
     adj[node_index[e.src], node_index[e.dst]] = 1
 end
 
-positions = sugiyama(adj; direction = :right)
+positions = sugiyama(adj)
 plot(dag; layout = positions)
 ```

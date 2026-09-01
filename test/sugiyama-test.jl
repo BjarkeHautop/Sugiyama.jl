@@ -27,7 +27,7 @@ end
     @test algo isa SugiyamaLayout{Float64}
     @test algo.ranking_type == :networksimplex
     @test algo.crossing_minimization == :barycenter
-    @test algo.direction == :down
+    @test algo.direction == :right
 
     algo = SugiyamaLayout(; Ptype = Float32)
     @test algo isa SugiyamaLayout{Float32}

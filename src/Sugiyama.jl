@@ -44,7 +44,7 @@ independently and placed side by side.
   used to reorder each rank.
 - `transpose=true`: Follow up with a greedy pairwise-swap pass that further
   reduces crossings, at the cost of runtime.
-- `direction=:down`: Which way ranks flow: `:down`, `:up`, `:left` or
+- `direction=:right`: Which way ranks flow: `:down`, `:up`, `:left` or
   `:right`.
 
 This implementation is a Julia port of
@@ -70,7 +70,7 @@ function SugiyamaLayout(;
     ranking_type = :networksimplex,
     crossing_minimization = :barycenter,
     transpose = true,
-    direction = :down,
+    direction = :right,
 )
     minimum_length >= 1 || throw(ArgumentError("minimum_length must be >= 1"))
     direction in (:down, :up, :left, :right) ||
