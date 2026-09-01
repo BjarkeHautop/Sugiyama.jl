@@ -13,6 +13,8 @@ an `AbstractGraph`).
 
 ## Installation
 
+Not yet registered. Install from GitHub:
+
 ```julia
 using Pkg
 Pkg.add(url="https://github.com/BjarkeHautop/Sugiyama.jl")
