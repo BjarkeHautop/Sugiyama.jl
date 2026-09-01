@@ -10,7 +10,6 @@ using Sugiyama
 using Graphs
 using CairoMakie
 using GraphMakie
-using CausalStructures
 ```
 
 `SugiyamaLayout` follows the same "callable struct" convention as
@@ -54,10 +53,10 @@ sugiyama(g)
 
 Both `sugiyama` and `SugiyamaLayout` accept keyword arguments to control node
 spacing, direction, and the ranking/crossing-minimization heuristics used
-internally. For example, laying out left-to-right instead of top-to-bottom:
+internally. For example, laying out top-to-bottom instead of left-to-right:
 
 ```@example quick
-graphplot(g; layout = SugiyamaLayout(; direction = :right), ilabels = repr.(1:nv(g)))
+graphplot(g; layout = SugiyamaLayout(; direction = :down), ilabels = repr.(1:nv(g)))
 ```
 
 See the [Reference](@ref reference) for the full list of keyword arguments.
@@ -90,6 +89,10 @@ graphplot(disconnected; layout = SugiyamaLayout(), ilabels = repr.(1:nv(disconne
 ```
 
 ## A more complex graph
+
+```@example quick
+using CausalStructures
+```
 
 Here we use [CausalStructures.jl](https://github.com/BjarkeHautop/CausalStructures.jl), for generating and plotting a DAG:
 

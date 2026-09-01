@@ -33,9 +33,8 @@ adj = [0 1 0;
 positions = sugiyama(adj)
 ```
 
-Keyword arguments control node spacing, direction, and the underlying
-heuristics:
+Keyword arguments can be used to control node spacing, direction, and the underlying heuristics. Here we do the first two:
 
 ```@example example
-positions = SugiyamaLayout(; direction = :right)(adj)
+positions = SugiyamaLayout(; direction = :down, nodespacing = 3.0)(adj)
 ```
