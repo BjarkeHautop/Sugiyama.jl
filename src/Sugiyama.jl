@@ -2,7 +2,7 @@ module Sugiyama
 
 using GeometryBasics: Point
 
-export SugiyamaLayout, sugiyama
+export SugiyamaLayout, sugiyama, sugiyama_paths
 
 include("graph.jl")
 include("cycles.jl")
@@ -99,6 +99,19 @@ end
 sugiyama(adj_matrix; kwargs...) = layout(SugiyamaLayout(; kwargs...), adj_matrix)
 
 """
+    sugiyama_paths(adj_matrix; kwargs...) -> (positions, edge_paths)
+
+Like `sugiyama`, but also returns the routing of each edge as a
+polyline. `edge_paths` is a `Dict{Tuple{Int,Int},Vector{Point{2,Ptype}}}`
+mapping each nonzero `(i, j)` entry of `adj_matrix` to
+`[positions[i], bend points..., positions[j]]`.
+
+Accepts the same keyword arguments as [`SugiyamaLayout`](@ref).
+"""
+sugiyama_paths(adj_matrix; kwargs...) =
+    layout_with_paths(SugiyamaLayout(; kwargs...), adj_matrix)
+
+"""
 Throws `ArgumentError` if matrix is not square. Returns size.
 """
 function assertsquare(M::AbstractMatrix)
@@ -107,10 +120,30 @@ function assertsquare(M::AbstractMatrix)
     return a
 end
 
-function layout(algo::SugiyamaLayout{Ptype,T}, adj_matrix::AbstractMatrix) where {Ptype,T}
+function layout(algo::SugiyamaLayout, adj_matrix::AbstractMatrix)
+    positions, _ = _layout(algo, adj_matrix, false)
+    return positions
+end
+
+"""
+    layout_with_paths(algo::SugiyamaLayout, adj_matrix) -> (positions, edge_paths)
+
+Implementation of [`sugiyama_paths`](@ref) for an already-constructed
+`algo`.
+"""
+function layout_with_paths(algo::SugiyamaLayout, adj_matrix::AbstractMatrix)
+    return _layout(algo, adj_matrix, true)
+end
+
+function _layout(
+    algo::SugiyamaLayout{Ptype,T},
+    adj_matrix::AbstractMatrix,
+    want_paths::Bool,
+) where {Ptype,T}
     n = assertsquare(adj_matrix)
     positions = Vector{Point{2,Ptype}}(undef, n)
-    n == 0 && return positions
+    edge_paths = want_paths ? Dict{Tuple{Int,Int},Vector{Point{2,Ptype}}}() : nothing
+    n == 0 && return positions, edge_paths
 
     nodesize = ones(Float64, n)
     for i = 1:min(n, length(algo.nodesize))
@@ -135,20 +168,33 @@ function layout(algo::SugiyamaLayout{Ptype,T}, adj_matrix::AbstractMatrix) where
                 height = nodesize[v] + algo.nodespacing,
             )
         end
+        comp_edges = Tuple{Int,Int}[]
         for (i, j) in edgelist
             (haskey(localid, i) && haskey(localid, j)) || continue
             _add_edge!(sub, localid[i], localid[j])
+            want_paths && push!(comp_edges, (i, j))
         end
 
-        xs, ys = layout_component!(sub, algo)
+        xs, ys, local_paths = layout_component!(sub, algo; want_paths)
 
         minx, maxx = extrema(view(xs, 1:m))
         for (k, v) in enumerate(comp)
             positions[v] = to_point(Ptype, xs[k] - minx + xoffset, ys[k], algo.direction)
         end
+
+        if want_paths
+            all_points = [
+                to_point(Ptype, xs[k] - minx + xoffset, ys[k], algo.direction) for
+                k = 1:_nv(sub)
+            ]
+            for (oid, ij) in enumerate(comp_edges)
+                edge_paths[ij] = all_points[local_paths[oid]]
+            end
+        end
+
         xoffset += (maxx - minx) + algo.nodespacing
     end
-    return positions
+    return positions, edge_paths
 end
 
 function to_point(::Type{Ptype}, x::Float64, y::Float64, direction::Symbol) where {Ptype}
@@ -195,12 +241,22 @@ end
 
 """Run all four layout phases on a single weakly-connected component `g`
 (vertices `1:m` are the "real" input vertices; the pipeline may append
-dummy vertices after that). Returns `(xs, ys)` covering every vertex of the
-(possibly grown) graph."""
-function layout_component!(g::SugiGraph, algo::SugiyamaLayout)
+dummy vertices after that). Returns `(xs, ys, local_paths)` covering every
+vertex of the (possibly grown) graph; `local_paths` is `nothing` unless
+`want_paths`, in which case it holds, for each edge originally added to
+`g` (in that order), the chain of vertex ids it was routed through: real
+endpoints plus any dummy vertices."""
+function layout_component!(g::SugiGraph, algo::SugiyamaLayout; want_paths::Bool = false)
+    # `g.edges` at this point are exactly the caller's original edges
+    # (self-origin, ids `1:length(g.edges)`), so this is the last point
+    # `.tail`/`.head` can be read directly as the pre-transform endpoints.
+    tails = want_paths ? [e.tail for e in g.edges] : Int[]
+    heads = want_paths ? [e.head for e in g.edges] : Int[]
+
     remove_cycles!(g)
     rank!(g, algo.minimum_length, algo.ranking_type)
     insert_dummy_vertices!(g, algo.minimum_length, algo.dummysize)
+    local_paths = want_paths ? extract_edge_paths(g, tails, heads) : nothing
     layers = ordering(g, algo.crossing_minimization, algo.transpose)
 
     layouts = create_layouts(g, layers)
@@ -226,7 +282,7 @@ function layout_component!(g::SugiGraph, algo::SugiyamaLayout)
     end
     ys = [rank_to_y[g.verts[v].rank] for v = 1:n]
 
-    return xs, ys
+    return xs, ys, local_paths
 end
 
 end

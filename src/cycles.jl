@@ -34,8 +34,9 @@ function remove_cycles!(g::SugiGraph)
     for eid in to_reverse
         e = g.edges[eid]
         tail, head, weight = e.tail, e.head, e.weight
+        origin = g.origin[eid]
         _rem_edge!(g, eid)
-        _add_edge!(g, head, tail; weight)
+        _add_edge!(g, head, tail; weight, origin)
     end
     return g
 end

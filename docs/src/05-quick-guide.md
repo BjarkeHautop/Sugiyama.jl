@@ -88,7 +88,7 @@ add_edge!(disconnected, 3, 4)
 graphplot(disconnected; layout = SugiyamaLayout(), ilabels = repr.(1:nv(disconnected)))
 ```
 
-## A more complex graph
+## Edge routing with CausalStructures
 
 ```@example quick
 using CausalStructures
@@ -97,7 +97,7 @@ using CausalStructures
 Here we use [CausalStructures.jl](https://github.com/BjarkeHautop/CausalStructures.jl), for generating and plotting a DAG:
 
 ```@example quick
-dag = DAG("C --> X, A --> X + K, X --> F + D, K --> Y, D --> Y + G, Y --> H")
+dag = DAG("A --> X, A --> B, X --> Y, B --> Y, A --> Y")
 
 ns = nodes(dag)
 node_index = Dict(n => i for (i, n) in enumerate(ns))
@@ -109,4 +109,25 @@ end
 
 positions = sugiyama(adj)
 plot(dag; layout = positions)
+```
+
+CausalStructures does automatic edge routing via Bezier curves if needed, but
+instead of falling back to that, we can use [`sugiyama_paths`](@ref) for the routing sugiyama uses. Alongside the positions, it returns
+`edge_paths`, a `Dict` mapping each `(i, j)` edge to the polyline it
+should be drawn as: `positions[i]`, then one bend point per rank the edge
+spans, then `positions[j]`:
+
+```@example quick
+positions, edge_paths = sugiyama_paths(adj)
+edge_paths[(node_index[:A], node_index[:Y])]
+```
+
+`plot` accepts this directly as its own `edge_paths` keyword (keyed by
+node name rather than index here):
+
+```@example quick
+name_of = Dict(i => n for (n, i) in node_index)
+named_paths = Dict((name_of[i], name_of[j]) => path for ((i, j), path) in edge_paths)
+
+plot(dag; layout = positions, edge_paths = named_paths)
 ```

@@ -14,4 +14,5 @@ Pages = ["95-reference.md"]
 
 ```@docs
 Sugiyama.SugiyamaLayout
+Sugiyama.sugiyama_paths
 ```

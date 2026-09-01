@@ -60,10 +60,23 @@ struct SugiGraph
     edges::Vector{Union{Nothing,SugiEdge}}
     out::Vector{Vector{Int}}   # out[v] = ids of edges with tail == v
     inn::Vector{Vector{Int}}   # inn[v] = ids of edges with head == v
+    # origin[eid] identifies which input edge `eid` descends from: edges
+    # added directly by the caller are their own origin; an edge created by
+    # reversing (cycle removal) or splitting (dummy insertion) another edge
+    # inherits that edge's origin. Lets callers recover, for each input
+    # edge, the chain of vertices (real endpoints plus any dummy vertices)
+    # it was routed through. See `extract_edge_paths`.
+    origin::Vector{Int}
 end
 
 function SugiGraph()
-    return SugiGraph(SugiVertex[], Union{Nothing,SugiEdge}[], Vector{Int}[], Vector{Int}[])
+    return SugiGraph(
+        SugiVertex[],
+        Union{Nothing,SugiEdge}[],
+        Vector{Int}[],
+        Vector{Int}[],
+        Int[],
+    )
 end
 
 _nv(g::SugiGraph) = length(g.verts)
@@ -80,11 +93,12 @@ function _add_vertex!(g::SugiGraph; kwargs...)
     return id
 end
 
-function _add_edge!(g::SugiGraph, tail::Int, head::Int; weight = 1)
+function _add_edge!(g::SugiGraph, tail::Int, head::Int; weight = 1, origin = nothing)
     push!(g.edges, SugiEdge(tail, head; weight))
     eid = length(g.edges)
     push!(g.out[tail], eid)
     push!(g.inn[head], eid)
+    push!(g.origin, origin === nothing ? eid : origin)
     return eid
 end
 

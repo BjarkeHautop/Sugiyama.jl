@@ -625,7 +625,88 @@ end
     end
 end
 
+@testitem "sugiyama_paths" begin
+    using Graphs: wheel_graph, SimpleDiGraph, edges, adjacency_matrix
+    using GeometryBasics: Point
+
+    @testset "empty and trivial graphs" begin
+        pos, paths = sugiyama_paths(zeros(Int, 0, 0))
+        @test pos == Point{2,Float64}[]
+        @test isempty(paths)
+
+        pos, paths = sugiyama_paths(zeros(Int, 1, 1))
+        @test length(pos) == 1
+        @test isempty(paths)
+    end
+
+    @testset "adjacent-rank edge has a 2-point path" begin
+        adj = [0 1; 0 0]
+        pos, paths = sugiyama_paths(adj)
+        @test paths[(1, 2)] == [pos[1], pos[2]]
+    end
+
+    @testset "long edge is routed through dummy vertices" begin
+        # A -> B -> C and a direct A -> C spanning both ranks.
+        adj = [0 1 1; 0 0 1; 0 0 0]
+        pos, paths = sugiyama_paths(adj)
+
+        @test paths[(1, 2)] == [pos[1], pos[2]]
+        @test paths[(2, 3)] == [pos[2], pos[3]]
+
+        p13 = paths[(1, 3)]
+        @test length(p13) == 3 # A, one dummy bend point, C
+        @test p13[1] == pos[1]
+        @test p13[end] == pos[3]
+        @test p13[2] != pos[1] && p13[2] != pos[3]
+    end
+
+    @testset "reversed (back) edges still produce a correctly oriented path" begin
+        # A -> B -> C -> A: C -> A is a back edge, implicitly reversed
+        # internally, and also spans a rank gap.
+        adj = [0 1 0; 0 0 1; 1 0 0]
+        pos, paths = sugiyama_paths(adj)
+
+        p31 = paths[(3, 1)]
+        @test p31[1] == pos[3]
+        @test p31[end] == pos[1]
+        @test length(p31) >= 2
+    end
+
+    @testset "self loops produce no path entry" begin
+        adj = [1 1; 0 0]
+        pos, paths = sugiyama_paths(adj)
+        @test !haskey(paths, (1, 1))
+        @test paths[(1, 2)] == [pos[1], pos[2]]
+    end
+
+    @testset "disconnected components each get their own edges routed" begin
+        adj = [
+            0 1 0 0 0;
+            0 0 0 0 0;
+            0 0 0 1 0;
+            0 0 0 0 1;
+            0 0 0 0 0
+        ]
+        pos, paths = sugiyama_paths(adj)
+        @test Set(keys(paths)) == Set([(1, 2), (3, 4), (4, 5)])
+        for (i, j) in keys(paths)
+            @test paths[(i, j)][1] == pos[i]
+            @test paths[(i, j)][end] == pos[j]
+        end
+    end
+
+    @testset "matches sugiyama()'s positions" begin
+        g = wheel_graph(10)
+        dirg = SimpleDiGraph(collect(edges(g)))
+        adj = adjacency_matrix(dirg)
+        pos, paths = sugiyama_paths(adj)
+        @test pos == sugiyama(adj)
+        @test length(paths) == length(edges(dirg))
+    end
+end
+
 @testitem "assert square" begin
     M1 = rand(2, 4)
     @test_throws ArgumentError sugiyama(M1)
+    @test_throws ArgumentError sugiyama_paths(M1)
 end

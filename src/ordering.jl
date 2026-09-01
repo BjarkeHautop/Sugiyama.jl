@@ -15,16 +15,59 @@ function insert_dummy_vertices!(g::SugiGraph, minimum_length::Int, dummy_width::
         slack(g, eid, minimum_length) <= 0 && continue
         e = g.edges[eid]
         tail, head = e.tail, e.head
+        origin = g.origin[eid]
         _rem_edge!(g, eid)
         t = tail
         for r = (g.verts[tail].rank+1):(g.verts[head].rank-1)
             d = _add_vertex!(g; width = dummy_width, height = 0.0, is_dummy = true)
             g.verts[d].rank = r
-            _add_edge!(g, t, d)
+            _add_edge!(g, t, d; origin)
             t = d
         end
-        _add_edge!(g, t, head)
+        _add_edge!(g, t, head; origin)
     end
+end
+
+"""
+    extract_edge_paths(g, tails, heads) -> Vector{Vector{Int}}
+
+For each input edge `oid` (originally running from local vertex `tails[oid]`
+to `heads[oid]`, before cycle removal or dummy insertion touched it), return
+the ordered chain of vertex ids it was split into: endpoints plus any dummy
+vertices inserted to route it across ranks. Must be called after
+`insert_dummy_vertices!`, and relies on `g.origin` still identifying, for
+every edge currently in `g`, which of the `1:length(tails)` input edges it
+descends from (true as long as `tails`/`heads` were captured before any
+mutation of a freshly built graph, whose edges are self-origin by
+construction).
+"""
+function extract_edge_paths(g::SugiGraph, tails::Vector{Int}, heads::Vector{Int})
+    m = length(tails)
+    by_origin = [Int[] for _ = 1:m]
+    for eid in eachindex(g.edges)
+        e = g.edges[eid]
+        e === nothing && continue
+        push!(by_origin[g.origin[eid]], eid)
+    end
+
+    paths = Vector{Vector{Int}}(undef, m)
+    for oid = 1:m
+        adj = Dict{Int,Vector{Int}}()
+        for eid in by_origin[oid]
+            e = g.edges[eid]
+            push!(get!(() -> Int[], adj, e.tail), e.head)
+            push!(get!(() -> Int[], adj, e.head), e.tail)
+        end
+        chain = Int[tails[oid]]
+        prev, cur = 0, tails[oid]
+        while cur != heads[oid]
+            nxt = only(w for w in adj[cur] if w != prev)
+            push!(chain, nxt)
+            prev, cur = cur, nxt
+        end
+        paths[oid] = chain
+    end
+    return paths
 end
 
 # ---- vertex ordering within ranks --------------------------------------
