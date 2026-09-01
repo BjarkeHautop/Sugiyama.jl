@@ -1,6 +1,6 @@
 # Sugiyama
 
-[![Stable Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://BjarkeHautop.github.io/Sugiyama.jl/stable)
+<!-- ![Stable Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://BjarkeHautop.github.io/Sugiyama.jl/stable) -->
 [![Development documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://BjarkeHautop.github.io/Sugiyama.jl/dev)
 [![Test workflow status](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Test.yml/badge.svg?branch=main)](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Test.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/BjarkeHautop/Sugiyama.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/BjarkeHautop/Sugiyama.jl)
