@@ -96,12 +96,22 @@ end
 
 (algo::SugiyamaLayout)(adj_matrix) = layout(algo, adj_matrix)
 
+"""
+    sugiyama(adj_matrix; kwargs...)
+
+Layered ("hierarchical") layout for directed graphs. Takes the adjacency
+matrix of a directed graph and returns coordinates of the nodes as
+`Point{2,Ptype}`.
+
+Accepts the same keyword arguments as [`SugiyamaLayout`](@ref), which also
+documents the algorithm.
+"""
 sugiyama(adj_matrix; kwargs...) = layout(SugiyamaLayout(; kwargs...), adj_matrix)
 
 """
     sugiyama_paths(adj_matrix; kwargs...) -> (positions, edge_paths)
 
-Like `sugiyama`, but also returns the routing of each edge as a
+Like [`sugiyama`](@ref), but also returns the routing of each edge as a
 polyline. `edge_paths` is a `Dict{Tuple{Int,Int},Vector{Point{2,Ptype}}}`
 mapping each nonzero `(i, j)` entry of `adj_matrix` to
 `[positions[i], bend points..., positions[j]]`.
