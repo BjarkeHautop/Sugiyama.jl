@@ -5,13 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
-## Unreleased
+## [1.0.0] - 2026-09-04
 
 ### New features
 
-- Implement `sugiyama_paths()` to get the routing used via the dummy nodes.
+- Added `sugiyama_paths()` to get the routing used via the dummy nodes.
 
-## [0.1.0] - 2026-10-01
+### Other changes
+
+- Improved documentation
+
+## [0.1.0] - 2026-09-04
 
 - Initial release
 
