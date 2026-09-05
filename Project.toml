@@ -1,7 +1,7 @@
 name = "Sugiyama"
 uuid = "a85cd6b6-3810-52a0-aaf7-38a6bd88fd85"
 authors = ["Bjarke Hautop Kristensen <bjarke.hautop@gmail.com>"]
-version = "1.0.0"
+version = "1.0.1-DEV"
 
 [deps]
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"

@@ -9,7 +9,6 @@ LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 Sugiyama = "a85cd6b6-3810-52a0-aaf7-38a6bd88fd85"
 
 [sources]
-CausalStructures = {url = "https://github.com/BjarkeHautop/CausalStructures.jl"}
 Sugiyama = {path = ".."}
 
 [compat]
