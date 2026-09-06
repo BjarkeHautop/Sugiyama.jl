@@ -13,7 +13,7 @@ an `AbstractGraph`).
 
 ## Installation
 
-CausalStructures can be installed directly from the Julia package manager.
+Sugiyama can be installed directly from the Julia package manager.
 In the Julia REPL, press `]` to enter the Pkg mode, then run:
 
 ```julia
