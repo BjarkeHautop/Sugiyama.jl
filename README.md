@@ -13,11 +13,11 @@ an `AbstractGraph`).
 
 ## Installation
 
-Not yet registered. Install from GitHub:
+CausalStructures can be installed directly from the Julia package manager.
+In the Julia REPL, press `]` to enter the Pkg mode, then run:
 
 ```julia
-using Pkg
-Pkg.add(url="https://github.com/BjarkeHautop/Sugiyama.jl")
+pkg> add Sugiyama
 ```
 
 ## Usage
