@@ -62,7 +62,7 @@ struct SugiyamaLayout{Ptype,T}
 end
 
 function SugiyamaLayout(;
-    Ptype = Float64,
+    Ptype::Type{P} = Float64,
     nodesize = Float64[],
     nodespacing = 1.0,
     dummysize = 0.0,
@@ -71,7 +71,7 @@ function SugiyamaLayout(;
     crossing_minimization = :barycenter,
     transpose = true,
     direction = :right,
-)
+) where {P}
     minimum_length >= 1 || throw(ArgumentError("minimum_length must be >= 1"))
     direction in (:down, :up, :left, :right) ||
         throw(ArgumentError("direction must be one of :down, :up, :left, :right"))
@@ -82,7 +82,7 @@ function SugiyamaLayout(;
     )
     crossing_minimization in (:barycenter, :median) ||
         throw(ArgumentError("crossing_minimization must be :barycenter or :median"))
-    return SugiyamaLayout{Ptype,eltype(nodesize)}(
+    return SugiyamaLayout{P,eltype(nodesize)}(
         nodesize,
         Float64(nodespacing),
         Float64(dummysize),
@@ -106,7 +106,11 @@ matrix of a directed graph and returns coordinates of the nodes as
 Accepts the same keyword arguments as [`SugiyamaLayout`](@ref), which also
 documents the algorithm.
 """
-sugiyama(adj_matrix; kwargs...) = layout(SugiyamaLayout(; kwargs...), adj_matrix)
+Base.@constprop :aggressive sugiyama(
+    adj_matrix;
+    Ptype::Type{P} = Float64,
+    kwargs...,
+) where {P} = layout(SugiyamaLayout(; Ptype, kwargs...), adj_matrix)
 
 """
     sugiyama_paths(adj_matrix; kwargs...) -> (positions, edge_paths)
@@ -118,8 +122,11 @@ mapping each nonzero `(i, j)` entry of `adj_matrix` to
 
 Accepts the same keyword arguments as [`SugiyamaLayout`](@ref).
 """
-sugiyama_paths(adj_matrix; kwargs...) =
-    layout_with_paths(SugiyamaLayout(; kwargs...), adj_matrix)
+Base.@constprop :aggressive sugiyama_paths(
+    adj_matrix;
+    Ptype::Type{P} = Float64,
+    kwargs...,
+) where {P} = layout_with_paths(SugiyamaLayout(; Ptype, kwargs...), adj_matrix)
 
 """
 Throws `ArgumentError` if matrix is not square. Returns size.
@@ -188,15 +195,14 @@ function _layout(
         xs, ys, local_paths = layout_component!(sub, algo; want_paths)
 
         minx, maxx = extrema(view(xs, 1:m))
+        shift = xoffset - minx
         for (k, v) in enumerate(comp)
-            positions[v] = to_point(Ptype, xs[k] - minx + xoffset, ys[k], algo.direction)
+            positions[v] = to_point(Ptype, xs[k] + shift, ys[k], algo.direction)
         end
 
         if want_paths
-            all_points = [
-                to_point(Ptype, xs[k] - minx + xoffset, ys[k], algo.direction) for
-                k = 1:_nv(sub)
-            ]
+            all_points =
+                [to_point(Ptype, xs[k] + shift, ys[k], algo.direction) for k = 1:_nv(sub)]
             for (oid, ij) in enumerate(comp_edges)
                 edge_paths[ij] = all_points[local_paths[oid]]
             end
@@ -265,7 +271,7 @@ function layout_component!(g::SugiGraph, algo::SugiyamaLayout; want_paths::Bool 
 
     remove_cycles!(g)
     rank!(g, algo.minimum_length, algo.ranking_type)
-    insert_dummy_vertices!(g, algo.minimum_length, algo.dummysize)
+    insert_dummy_vertices!(g, algo.dummysize)
     local_paths = want_paths ? extract_edge_paths(g, tails, heads) : nothing
     layers = ordering(g, algo.crossing_minimization, algo.transpose)
 

@@ -75,7 +75,7 @@ end
 function tight_tree!(g::SugiGraph, v::Int, visited_edges::Set{Int}, minimum_length::Int)
     node_count = 1
     g.verts[v].is_tree_vertex = true
-    for (eid, other) in collect(incident(g, v))
+    for (eid, other) in incident(g, v)
         eid in visited_edges && continue
         push!(visited_edges, eid)
         e = g.edges[eid]
@@ -261,7 +261,7 @@ function dfs_low_lim!(
     visited[v] = true
     g.verts[v].lim = max_lim[]
     g.verts[v].parent = parent
-    for (eid, other) in collect(incident(g, v))
+    for (eid, other) in incident(g, v)
         if !visited[other] && g.edges[eid].is_tree_edge
             max_lim[] -= 1
             dfs_low_lim!(g, other, v, max_lim, visited)
@@ -408,7 +408,7 @@ function rank!(g::SugiGraph, minimum_length::Int, ranking_type::Symbol)
     else
         throw(
             ArgumentError(
-                "Unknown ranking_type $(repr(ranking_type)), must be one of " *
+                "Unknown ranking_type :$ranking_type, must be one of " *
                 ":networksimplex, :longestpath, :up, :down",
             ),
         )

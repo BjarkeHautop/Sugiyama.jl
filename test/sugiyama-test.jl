@@ -195,7 +195,7 @@ end
         remove_cycles!(g)
         rank!(g, 1, :networksimplex)
         @test length(unique(v.rank for v in g.verts)) == 6
-        insert_dummy_vertices!(g, 1, 0.0)
+        insert_dummy_vertices!(g, 0.0)
         layers = ordering(g, :barycenter, true)
         @test maximum(length.(layers)) == 4
     end
@@ -261,7 +261,7 @@ end
         for (v, r) in [(0, 0), (1, 1), (2, 2), (3, 3), (4, 1), (5, 1), (6, 2), (7, 4)]
             g.verts[v+1].rank = r
         end
-        insert_dummy_vertices!(g, 1, 0.0)
+        insert_dummy_vertices!(g, 0.0)
         @test _nv(g) == 9
         @test count(v -> v.is_dummy, g.verts) == 1
     end
@@ -622,6 +622,19 @@ end
                 adj,
             )
         @test length(pos) == 4
+    end
+
+    @testset "minimum_length > 1" begin
+        # Diamond plus a long edge, a cycle and a separate component; edges of
+        # length exactly `minimum_length` used to be left unsplit.
+        adj = zeros(Int, 7, 7)
+        adj[1, 2] = adj[1, 3] = adj[2, 4] = adj[3, 4] = adj[1, 4] = 1
+        adj[4, 5] = adj[5, 1] = adj[6, 7] = 1
+        for minimum_length in (2, 3)
+            pos = sugiyama(adj; minimum_length)
+            @test length(pos) == 7
+            @test all(p -> all(isfinite, p), pos)
+        end
     end
 end
 

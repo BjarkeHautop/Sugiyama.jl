@@ -127,10 +127,11 @@ in_neighbors(g::SugiGraph, v::Int) = (g.edges[eid].tail for eid in g.inn[v])
 
 """Edge ids and the vertex at the other end, considering both directions."""
 function incident(g::SugiGraph, v::Int)
-    return Iterators.flatten((
-        ((eid, g.edges[eid].head) for eid in g.out[v]),
-        ((eid, g.edges[eid].tail) for eid in g.inn[v]),
-    ))
+    out = Tuple{Int,Int}[(eid, g.edges[eid].head) for eid in g.out[v]]
+    for eid in g.inn[v]
+        push!(out, (eid, g.edges[eid].tail))
+    end
+    return out
 end
 
 function find_edge(g::SugiGraph, tail::Int, head::Int)

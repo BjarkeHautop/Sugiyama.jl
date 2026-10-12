@@ -10,10 +10,11 @@
 # count. We keep the best ordering found and stop once a few sweeps in a row
 # fail to improve on it (finding the true minimum is NP-hard).
 
-function insert_dummy_vertices!(g::SugiGraph, minimum_length::Int, dummy_width::Float64)
+function insert_dummy_vertices!(g::SugiGraph, dummy_width::Float64)
     for eid in [eid for eid in eachindex(g.edges) if g.edges[eid] !== nothing]
-        slack(g, eid, minimum_length) <= 0 && continue
         e = g.edges[eid]
+        # Split every edge spanning more than one rank
+        g.verts[e.head].rank - g.verts[e.tail].rank <= 1 && continue
         tail, head = e.tail, e.head
         origin = g.origin[eid]
         _rem_edge!(g, eid)
@@ -26,6 +27,11 @@ function insert_dummy_vertices!(g::SugiGraph, minimum_length::Int, dummy_width::
         end
         _add_edge!(g, t, head; origin)
     end
+end
+
+"""The single neighbor in `nbrs` other than `prev`."""
+function _next_on_chain(nbrs::Vector{Int}, prev::Int)
+    return only(w for w in nbrs if w != prev)
 end
 
 """
@@ -61,7 +67,7 @@ function extract_edge_paths(g::SugiGraph, tails::Vector{Int}, heads::Vector{Int}
         chain = Int[tails[oid]]
         prev, cur = 0, tails[oid]
         while cur != heads[oid]
-            nxt = only(w for w in adj[cur] if w != prev)
+            nxt = _next_on_chain(adj[cur], prev)
             push!(chain, nxt)
             prev, cur = cur, nxt
         end
@@ -87,22 +93,29 @@ end
 
 Base.copy(o::SugiOrder) = SugiOrder([copy(l) for l in o.layers], copy(o.positions))
 
+function _init_order_dfs!(
+    g::SugiGraph,
+    v::Int,
+    visited::BitVector,
+    layers::Vector{Vector{Int}},
+)
+    visited[v] && return
+    visited[v] = true
+    push!(layers[g.verts[v].rank], v)
+    for w in collect(out_neighbors(g, v))
+        _init_order_dfs!(g, w, visited, layers)
+    end
+    return
+end
+
 function init_order(g::SugiGraph)
     n = _nv(g)
     n == 0 && return SugiOrder(Vector{Int}[], 0)
     max_rank = maximum(v.rank for v in g.verts)
     layers = [Int[] for _ = 1:max_rank]
     visited = falses(n)
-    function dfs(v::Int)
-        visited[v] && return
-        visited[v] = true
-        push!(layers[g.verts[v].rank], v)
-        for n in collect(out_neighbors(g, v))
-            dfs(n)
-        end
-    end
     for v = 1:n
-        dfs(v)
+        _init_order_dfs!(g, v, visited, layers)
     end
     return SugiOrder(layers, n)
 end
@@ -288,7 +301,7 @@ function ordering(g::SugiGraph, crossing_minimization::Symbol, do_transpose::Boo
         crossing_minimization === :median ? median :
         throw(
             ArgumentError(
-                "Unknown crossing_minimization $(repr(crossing_minimization)), " *
+                "Unknown crossing_minimization :$crossing_minimization, " *
                 "must be :barycenter or :median",
             ),
         )

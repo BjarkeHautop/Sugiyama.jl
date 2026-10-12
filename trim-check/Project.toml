@@ -1,0 +1,13 @@
+name = "TrimCheck"
+uuid = "3d6b2f4e-8a1c-4f7e-b5d2-9c0e1a7f6b38"
+version = "0.0.1"
+
+[deps]
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+Sugiyama = "a85cd6b6-3810-52a0-aaf7-38a6bd88fd85"
+
+[sources]
+Sugiyama = {path = ".."}
+
+[compat]
+julia = "1.13"
