@@ -1,9 +1,14 @@
 # Getting Started
 
-Plotting requires loading a [Makie](https://docs.makie.org/stable/) backend
-and [GraphMakie.jl](https://github.com/JuliaPlots/GraphMakie.jl). Below we use
-CairoMakie, and [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) to build
-graphs:
+Sugiyama.jl only computes layouts, so plotting is left to other packages.
+Below we use the [Makie](https://docs.makie.org/stable/) backend CairoMakie
+with [GraphMakie.jl](https://github.com/JuliaPlots/GraphMakie.jl) for plotting,
+and [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) to build graphs. Any
+plotting package that accepts vertex positions works; see
+[Edge routing with CausalStructures](#edge-routing-with-causalstructures) for
+an example with
+[CausalStructures.jl](https://github.com/BjarkeHautop/CausalStructures.jl)
+instead:
 
 ```@example quick
 using Sugiyama
