@@ -7,6 +7,7 @@
 [![Lint workflow Status](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Lint.yml/badge.svg?branch=main)](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Lint.yml?query=branch%3Amain)
 [![Docs workflow Status](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Docs.yml/badge.svg?branch=main)](https://github.com/BjarkeHautop/Sugiyama.jl/actions/workflows/Docs.yml?query=branch%3Amain)
 [![BestieTemplate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/JuliaBesties/BestieTemplate.jl/main/docs/src/assets/badge.json)](https://github.com/JuliaBesties/BestieTemplate.jl)
+[![TrimTrace](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/BjarkeHautop/TrimTrace.jl/main/docs/src/assets/badge.json)](https://github.com/BjarkeHautop/TrimTrace.jl)
 
 A Julia package for Sugiyama layout of directed graphs, given as an adjacency matrix (or, with Graphs.jl loaded,
 an `AbstractGraph`).
